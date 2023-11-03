@@ -1,0 +1,1 @@
+# az-appservice-go
