@@ -32,14 +32,14 @@
               ${{ env.cache }}
             key: setup-go-deps-${{ runner.os }}-go-${{ hashFiles('go.sum go.mod') }}
 
-        - run: echo "$GOOS $GOARCH" > /tmp/env
+        - run: echo "$GOOS $GOARCH" > env.txt
 
         - name: Set up intermediate built files cache
           uses: actions/cache@v3
           with:
             path: |
               ${{ env.modcache }}
-            key: setup-go-build-${{ env.GOOS }}-${{ env.GOARCH }}-${{ runner.os }}-go-${{ hashFiles('{**/*.go,/tmp/env}') }}
+            key: setup-go-build-${{ env.GOOS }}-${{ env.GOARCH }}-${{ runner.os }}-go-${{ hashFiles('**/*.go', 'env.txt') }}
             restore-keys: |
               setup-go-build-${{ env.GOOS }}-${{ env.GOARCH }}
 
