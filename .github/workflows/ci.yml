@@ -7,6 +7,10 @@
   jobs:
     build-n-deploy:
       runs-on: ubuntu-latest
+      env:
+        GOOS: linux
+        GOARCH: amd64
+
       steps:
         - uses: actions/checkout@v4
 
@@ -16,8 +20,31 @@
             go-version: 1.21.x
             cache: false
 
+        - name: Get Go cached paths
+          run: |
+            echo "cache=$(go env GOCACHE)" >> $GITHUB_ENV
+            echo "modcache=$(go env GOMODCACHE)" >> $GITHUB_ENV
+
+        - name: Set up dependencies cache
+          uses: actions/cache@v3
+          with:
+            path: |
+              ${{ env.cache }}
+            key: setup-go-deps-${{ runner.os }}-go-${{ hashFiles('go.sum go.mod') }}
+
+        - run: echo "$GOOS $GOARCH" > /tmp/env
+
+        - name: Set up intermediate built files cache
+          uses: actions/cache@v3
+          with:
+            path: |
+              ${{ env.modcache }}
+            key: setup-go-build-${{ env.GOOS }}-${{ env.GOARCH }}-${{ runner.os }}-go-${{ hashFiles('**/*.go /tmp/env') }}
+            restore-keys: |
+              setup-go-build-${{ env.GOOS }}-${{ env.GOARCH }}
+
         - name: Build Linux binary
-          run:  GOOS=linux GOARCH=amd64 go build
+          run:  go build
 
         - name: Build Docker image
           run: docker build -t ${{ secrets.DOCKER_USERNAME }}/az-appservice .
