@@ -63,7 +63,6 @@ func mainWithDeferred() {
 	time.Sleep(1 * time.Second)
 }
 
-// just for testing CI, remove this comment asap
 func main() {
 	flag.Parse()
 	log.Setup(*prod)
