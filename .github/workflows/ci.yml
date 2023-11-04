@@ -39,7 +39,7 @@
           with:
             path: |
               ${{ env.modcache }}
-            key: setup-go-build-${{ env.GOOS }}-${{ env.GOARCH }}-${{ runner.os }}-go-${{ hashFiles('**/*.go /tmp/env') }}
+            key: setup-go-build-${{ env.GOOS }}-${{ env.GOARCH }}-${{ runner.os }}-go-${{ hashFiles('{**/*.go,/tmp/env}') }}
             restore-keys: |
               setup-go-build-${{ env.GOOS }}-${{ env.GOARCH }}
 
