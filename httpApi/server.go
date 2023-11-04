@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-// just for testing CI, remove this comment asap
 func GetHttpServer() *http.Server {
 	r := mux.NewRouter()
 	r.HandleFunc("/1/ping", GetPingHandler())
