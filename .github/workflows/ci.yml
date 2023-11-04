@@ -55,10 +55,8 @@
         - name: Docker push
           run: docker push ${{ secrets.DOCKER_USERNAME }}/az-appservice
 
-        - name: Login to Azure with Publishing Profile
-          run: |
-            mkdir ~/.azure
-            echo "${{ secrets.AZ_PROFILE }}" > ~/.azure/azure.pubxml
-
         - name: Deploy to Azure Web App
-          run: az webapp restart --name akv-demo-go --resource-group akv-demo-1
+          uses: azure/webapps-deploy@v2
+          with:
+            app-name: akv-demo-go
+            publish-profile: ${{ secrets.AZ_PROFILE }}
