@@ -41,21 +41,25 @@
               ${{ env.modcache }}
             key: setup-go-build-${{ env.GOOS }}-${{ env.GOARCH }}-${{ runner.os }}-go-${{ hashFiles('**/*.go', 'env.txt') }}
             restore-keys: |
-              setup-go-build-${{ env.GOOS }}-${{ env.GOARCH }}
+              setup-go-build-${{ env.GOOS }}-${{ env.GOARCH }}-${{ runner.os }}-go
 
         - name: Build Linux binary
           run:  go build
 
         - name: Build Docker image
+          if: ${{ true }}
           run: docker build -t ${{ secrets.DOCKER_USERNAME }}/az-appservice .
 
         - name: Login to Docker Hub
+          if: ${{ true }}
           run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
         - name: Docker push
+          if: ${{ true }}
           run: docker push ${{ secrets.DOCKER_USERNAME }}/az-appservice
 
         - name: Deploy to Azure Web App
+          if: ${{ true }}
           uses: azure/webapps-deploy@v2
           with:
             app-name: akv-demo-go
