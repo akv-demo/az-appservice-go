@@ -17,7 +17,7 @@ func GetPingHandler() http.HandlerFunc {
 		} else {
 			workload = workloads[0]
 			log.Log.Debug("Ping", zap.String("workload", workload))
-			_, err := w.Write([]byte("Pinged with " + workload + "\n"))
+			_, err := w.Write([]byte("Pong " + workload + "\n"))
 			if err != nil {
 				log.Log.Error("Ping error", zap.Error(err))
 				w.WriteHeader(http.StatusInternalServerError)
