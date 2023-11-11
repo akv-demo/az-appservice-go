@@ -104,6 +104,6 @@
           
           uses: azure/webapps-deploy@v2
           with:
-            app-name: akv-demo-go
+            app-name: az-appservice-go-dockerhub
             publish-profile: ${{ secrets.APP_GO_DOCKERHUB_PROFILE }}
       
