@@ -65,7 +65,7 @@
       steps:
         - name: Choose container registry
           id: choose
-          run: echo "::set-output name=registry::${{secrets.REGISTRY }}"
+          run: echo "registry=${{ secrets.REGISTRY }}" >> $GITHUB_OUTPUT
 
     publish-to-registry:
       needs: [choose-registry]
