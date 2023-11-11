@@ -5,11 +5,14 @@
       branches:
         - main
   jobs:
-    build-n-deploy:
+    build:
       runs-on: ubuntu-latest
       env:
         GOOS: linux
         GOARCH: amd64
+      strategy:
+        matrix:
+          container-registry: []
 
       steps:
         - uses: actions/checkout@v4
@@ -46,21 +49,64 @@
         - name: Build Linux binary
           run:  go build
 
-        - name: Build Docker image
+        - name: Build & tar docker image
           if: ${{ true }}
-          run: docker build -t ${{ secrets.DOCKER_USERNAME }}/az-appservice .
+          run: |
+            docker build -t az-appservice-go .
+            docker save az-appservice-go |gzip > az-appservice-go.tar.gz
 
-        - name: Login to Docker Hub
-          if: ${{ true }}
-          run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+        - name: Upload artifact
+          uses: actions/upload-artifact@v3
+          with:
+            name: docker-image
+            path: az-appservice-go.tar.gz
 
-        - name: Docker push
-          if: ${{ true }}
-          run: docker push ${{ secrets.DOCKER_USERNAME }}/az-appservice
+    choose-registry:
+      needs: [build]
+      runs-on: ubuntu-latest
+      outputs:
+        registry: ${{ steps.choose.outputs.registry }}
+      steps:
+        - name: Choose container registry
+          id: choose
+          run: echo "::set-output name=registry::${{secrets.REGISTRY }}"
 
-        - name: Deploy to Azure Web App
-          if: ${{ true }}
+    publish-to-registry:
+      needs: [choose-registry]
+      runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          container-registry: [dockerhub]
+
+      steps:
+        - name: Download artifact
+          uses: actions/download-artifact@v3
+          with:
+            name: docker-image
+            path: az-appservice-go.tar.gz
+
+        - name: Unar docker image
+          run: |
+            gunzip az-appservice-go.tar.gz| docker load
+            docker images
+
+        - name: Publish to Docker Hub
+          if: needs.choose-registry.outputs.registry == 'dockerhub'
+          run: |
+            docker tag az-appservice-go ${{ secrets.DOCKER_USERNAME }}/az-appservice-go
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+            docker push ${{ secrets.DOCKER_USERNAME }}/az-appservice-go
+
+    deplpoy-to-azure-from-dockerhub:
+      if: needs.choose-registry.outputs.registry == 'dockerhub'
+      needs: [publish-to-registry, choose-registry]
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Deploy to Azure Web App from docker hub
+          
           uses: azure/webapps-deploy@v2
           with:
             app-name: akv-demo-go
             publish-profile: ${{ secrets.AZ_PROFILE }}
+      
