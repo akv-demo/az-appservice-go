@@ -95,7 +95,7 @@
             docker push ${{ secrets.DOCKER_USERNAME }}/az-appservice-go
 
     deplpoy-to-azure-from-dockerhub:
-      if: needs.choose-registry.outputs.registry == 'dockerhub'
+      if: needs.choose-registry.outputs.dockerhub
       needs: [publish-to-registry, choose-registry]
       runs-on: ubuntu-latest
 
@@ -105,5 +105,5 @@
           uses: azure/webapps-deploy@v2
           with:
             app-name: akv-demo-go
-            publish-profile: ${{ secrets.AZ_PROFILE }}
+            publish-profile: ${{ secrets.APP_GO_DOCKERHUB_PROFILE }}
       
