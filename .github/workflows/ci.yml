@@ -99,10 +99,10 @@
           uses: docker/login-action@v2
           with:
             registry: https://akvtraining.azurecr.io/
-            username: ${{ secrets.AzureAppService_ContainerUsername_a3760a5dac7f4726917f38f215d0db06 }}
-            password: ${{ secrets.AzureAppService_ContainerPassword_02520bfd6ea841afbf108eca82268bd9 }}
-            #username: ${{ secrets.AZURE_REGISTRY_USER }}
-            #password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+            #username: ${{ secrets.AzureAppService_ContainerUsername_a3760a5dac7f4726917f38f215d0db06 }}
+            #password: ${{ secrets.AzureAppService_ContainerPassword_02520bfd6ea841afbf108eca82268bd9 }}
+            username: ${{ secrets.AZURE_REGISTRY_ADMIN }}
+            password: ${{ secrets.AZURE_REGISTRY_ADMIN_PASSWORD }}
         
         - name: Publish to Azure Registry
           if: needs.choose-registry.outputs.azureregistry
@@ -120,4 +120,16 @@
           with:
             app-name: az-appservice-go-dockerhub
             publish-profile: ${{ secrets.APP_GO_DOCKERHUB_PROFILE }}
-      
+
+    deplpoy-to-azure-from-azure-regisrty:
+      if: needs.choose-registry.outputs.dockerhub
+      needs: [publish-to-registry, choose-registry]
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Deploy az-appservice-go-dockerhub
+          
+          uses: azure/webapps-deploy@v2
+          with:
+            app-name: az-appservice-go-azure-registry
+            publish-profile: ${{ secrets.APP_GO_AZURE_REGISTRY_PROFILE }}
