@@ -70,10 +70,7 @@
     publish-to-registry:
       needs: [choose-registry]
       runs-on: ubuntu-latest
-      strategy:
-        matrix:
-          container-registry: [dockerhub]
-
+      
       steps:
         - name: Download artifact
           uses: actions/download-artifact@v3
@@ -83,7 +80,7 @@
 
         - name: Unar docker image
           run: |
-            gunzip az-appservice-go.tar.gz| docker load
+            gunzip -c az-appservice-go.tar.gz| docker load
             docker images
 
         - name: Publish to Docker Hub
