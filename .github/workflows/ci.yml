@@ -57,23 +57,9 @@
             name: docker-image
             path: az-appservice-go.tar.gz
 
-    choose-registry:
-      runs-on: ubuntu-latest
-      env:
-        dockerhub: true
-        azureregistry: true
-      outputs:
-        dockerhub: ${{ steps.choose.outputs.dockerhub }}
-        azureregistry: ${{ steps.choose.outputs.azureregistry }}
-      steps:
-        - name: Choose container registry
-          id: choose
-          run: |
-            echo "dockerhub==${dockerhub}" >> $GITHUB_OUTPUT
-            echo "azureregistry==${azureregistry}" >> $GITHUB_OUTPUT
-
-    publish-to-registry:
-      needs: [build, choose-registry]
+    publish-to-dockerhub:
+      if: ${{ true }}
+      needs: [build]
       runs-on: ubuntu-latest
       
       steps:
@@ -87,13 +73,29 @@
             gunzip -c az-appservice-go.tar.gz| docker load
             docker images
 
-        - name: Publish to Docker Hub
+        - name: Publish
           if: ${{ needs.choose-registry.outputs.dockerhub }}
           run: |
             docker tag az-appservice-go ${{ secrets.DOCKER_USERNAME }}/az-appservice-go
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
             docker push ${{ secrets.DOCKER_USERNAME }}/az-appservice-go
-        
+
+    publish-to-azure-registry:
+      if: ${{ true }}
+      needs: [build]
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Download artifact
+          uses: actions/download-artifact@v3
+          with:
+            name: docker-image
+
+        - name: Untar docker image
+          run: |
+            gunzip -c az-appservice-go.tar.gz| docker load
+            docker images
+
         - name: Publish to Azure Registry
           if: ${{ needs.choose-registry.outputs.azureregistry }}
           run: |
@@ -102,8 +104,7 @@
             docker push akvtraining.azurecr.io/az-appservice-go
 
     deplpoy-to-azure-from-dockerhub:
-      if: ${{ needs.choose-registry.outputs.dockerhub }}
-      needs: [publish-to-registry, choose-registry]
+      needs: [publish-to-dockerhub]
       runs-on: ubuntu-latest
 
       steps:
@@ -115,8 +116,7 @@
             publish-profile: ${{ secrets.APP_GO_DOCKERHUB_PROFILE }}
 
     deplpoy-to-azure-from-azure-regisrty:
-      if: ${{ needs.choose-registry.outputs.azureregistry }}
-      needs: [publish-to-registry, choose-registry]
+      needs: [publish-to-azure-registry]
       runs-on: ubuntu-latest
 
       steps:
