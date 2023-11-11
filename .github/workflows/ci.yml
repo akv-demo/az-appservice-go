@@ -58,17 +58,18 @@
             path: az-appservice-go.tar.gz
 
     choose-registry:
-      needs: [build]
       runs-on: ubuntu-latest
       outputs:
-        registry: ${{ steps.choose.outputs.registry }}
+        dockerhub: ${{ steps.choose.outputs.dockerhub }}
       steps:
         - name: Choose container registry
           id: choose
-          run: echo "registry=${REGISTRY}" >> $GITHUB_OUTPUT
+          run: |
+            set
+            test $USE_DOCKERHUB && echo "dockerhub==true" >> $GITHUB_OUTPUT
 
     publish-to-registry:
-      needs: [choose-registry]
+      needs: [build, choose-registry]
       runs-on: ubuntu-latest
       
       steps:
@@ -83,7 +84,7 @@
             docker images
 
         - name: Publish to Docker Hub
-          if: needs.choose-registry.outputs.registry == 'dockerhub'
+          if: needs.choose-registry.outputs.dockerhub == 'true'
           run: |
             docker tag az-appservice-go ${{ secrets.DOCKER_USERNAME }}/az-appservice-go
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
