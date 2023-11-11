@@ -99,8 +99,10 @@
           uses: docker/login-action@v2
           with:
             registry: https://akvtraining.azurecr.io/
-            username: ${{ secrets.AZURE_REGISTRY_ADMIN }}
-            password: ${{ secrets.AZURE_REGISTRY_ADMIN_PASSWORD }}
+            username: ${{ secrets.AZURE_REGISTRY }}
+            password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+            #username: ${{ secrets.AZURE_REGISTRY_ADMIN }}
+            #password: ${{ secrets.AZURE_REGISTRY_ADMIN_PASSWORD }}
         
         - name: Publish to Azure Registry
           if: ${{ needs.choose-registry.outputs.azureregistry }}
