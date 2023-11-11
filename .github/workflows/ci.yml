@@ -82,7 +82,7 @@
           with:
             name: docker-image
             
-        - name: Unar docker image
+        - name: Untar docker image
           run: |
             gunzip -c az-appservice-go.tar.gz| docker load
             docker images
@@ -131,5 +131,5 @@
           
           uses: azure/webapps-deploy@v2
           with:
-            app-name: az-appservice-go-azure-registry
+            app-name: az-appservice-go-azureregistry
             publish-profile: ${{ secrets.APP_GO_AZURE_REGISTRY_PROFILE }}
