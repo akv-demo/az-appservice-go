@@ -10,10 +10,6 @@
       env:
         GOOS: linux
         GOARCH: amd64
-      strategy:
-        matrix:
-          container-registry: []
-
       steps:
         - uses: actions/checkout@v4
 
