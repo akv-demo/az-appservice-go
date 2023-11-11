@@ -88,7 +88,7 @@
             docker images
 
         - name: Publish to Docker Hub
-          if: needs.choose-registry.outputs.dockerhub
+          if: ${{ needs.choose-registry.outputs.dockerhub == 'true' }}
           run: |
             docker tag az-appservice-go ${{ secrets.DOCKER_USERNAME }}/az-appservice-go
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
