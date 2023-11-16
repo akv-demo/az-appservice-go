@@ -74,7 +74,6 @@
             docker images
 
         - name: Publish
-          if: ${{ needs.choose-registry.outputs.dockerhub }}
           run: |
             docker tag az-appservice-go ${{ secrets.DOCKER_USERNAME }}/az-appservice-go
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
@@ -97,7 +96,6 @@
             docker images
 
         - name: Publish to Azure Registry
-          if: ${{ needs.choose-registry.outputs.azureregistry }}
           run: |
             docker tag az-appservice-go akvtraining.azurecr.io/az-appservice-go
             docker login akvtraining.azurecr.io -u ${{ secrets.AZURE_REGISTRY_USER }} -p ${{ secrets.AZURE_REGISTRY_PASSWORD }}
